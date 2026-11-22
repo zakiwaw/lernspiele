@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lernspiele">
+<title>Lernspiele</title>
+<link rel="stylesheet" href="style.css">
+<style>
+h1{font-size:40px;margin:24px 0 8px;text-align:center}
+p.sub{text-align:center;color:var(--muted);font-size:20px;margin:0 0 32px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+a.tile{display:flex;flex-direction:column;align-items:center;gap:16px;padding:36px 24px;border:2px solid var(--line);border-radius:24px;background:var(--card);text-decoration:none;color:var(--text);min-height:260px;justify-content:center}
+a.tile:active{transform:scale(.97)}
+a.tile .name{font-size:32px;font-weight:600}
+a.tile .desc{font-size:19px;color:var(--muted);text-align:center}
+.icons{display:flex;gap:16px;align-items:center;height:84px}
+.icons .ti{font-size:72px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Lernspiele</h1>
+  <p class="sub">Tippe auf ein Spiel</p>
+  <div class="grid">
+    <a class="tile" href="formen.html">
+      <div class="icons">
+        <svg width="72" height="72" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="#E24B4A"/></svg>
+        <svg width="72" height="72" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,10 92,86 8,86" fill="#378ADD"/></svg>
+        <svg width="72" height="72" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 88 C20 62 8 44 8 30 C8 18 18 10 29 10 C38 10 46 15 50 22 C54 15 62 10 71 10 C82 10 92 18 92 30 C92 44 80 62 50 88 Z" fill="#D4537E"/></svg>
+      </div>
+      <span class="name">Formen</span>
+      <span class="desc">Kreis, Stern, Herz, Viereck und Dreieck erkennen</span>
+    </a>
+    <a class="tile" href="muster.html">
+      <div class="icons">
+        <i class="ti ti-cat" style="color:#BA7517" aria-hidden="true"></i>
+        <i class="ti ti-car" style="color:#E24B4A" aria-hidden="true"></i>
+        <i class="ti ti-flower" style="color:#D4537E" aria-hidden="true"></i>
+      </div>
+      <span class="name">Muster</span>
+      <span class="desc">Was kommt als Nächstes? Farben, Tiere, Blumen, Fahrzeuge, Flugzeuge</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>

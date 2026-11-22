@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Muster">
+<title>Muster</title>
+<link rel="stylesheet" href="style.css">
+<style>
+#seq{display:flex;gap:10px;justify-content:center;flex-wrap:nowrap}
+.cell{width:76px;height:76px;flex:0 0 76px;display:flex;align-items:center;justify-content:center}
+.cell .ti{font-size:64px}
+.qc{border:3px dashed var(--line);border-radius:16px;font-size:40px;color:var(--muted)}
+#opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.opt{min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;border:2px solid var(--line);border-radius:20px;background:var(--card);font-size:22px}
+.opt:active{transform:scale(.97)}
+.opt .ti{font-size:64px}
+.hint{text-align:center;font-size:22px;color:var(--muted);margin:0 0 12px}
+@media (max-width:700px){.cell{width:44px;height:44px;flex-basis:44px}.cell .ti{font-size:38px}#seq{gap:4px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="index.html">Zurück</a>
+    <span class="score"><i class="ti ti-star" aria-hidden="true"></i><span id="stars">0</span></span>
+  </div>
+  <div class="chips" id="themes"></div>
+  <div class="chips" id="levels"></div>
+  <div class="stage">
+    <p class="hint">Was kommt als Nächstes?</p>
+    <div id="seq"></div>
+  </div>
+  <div id="opts"></div>
+  <p class="msg" id="msg"></p>
+</div>
+<script src="common.js"></script>
+<script>
+var THEMES={
+ 'Farben':[{n:'Rot',dot:1,col:'#E24B4A'},{n:'Grün',dot:1,col:'#639922'},{n:'Gelb',dot:1,col:'#F2C230'},{n:'Blau',dot:1,col:'#378ADD'}],
+ 'Tiere':[{n:'Katze',ic:'cat',col:'#BA7517'},{n:'Hund',ic:'dog',col:'#7F77DD'},{n:'Fisch',ic:'fish',col:'#378ADD'},{n:'Käfer',ic:'bug',col:'#E24B4A'}],
+ 'Blumen':[{n:'Rote Blume',ic:'flower',col:'#E24B4A'},{n:'Gelbe Blume',ic:'flower',col:'#EF9F27'},{n:'Rosa Blume',ic:'flower',col:'#D4537E'},{n:'Blatt',ic:'leaf',col:'#639922'}],
+ 'Fahrzeuge':[{n:'Auto',ic:'car',col:'#E24B4A'},{n:'Bus',ic:'bus',col:'#EF9F27'},{n:'Laster',ic:'truck',col:'#378ADD'},{n:'Zug',ic:'train',col:'#1D9E75'}],
+ 'Flugzeuge':[{n:'Blaues Flugzeug',ic:'plane',col:'#378ADD'},{n:'Gelbes Flugzeug',ic:'plane',col:'#EF9F27'},{n:'Hubschrauber',ic:'helicopter',col:'#E24B4A'},{n:'Rakete',ic:'rocket',col:'#7F77DD'}]
+};
+var LEVELS={
+ 'Leicht':[[0,1],[0,0,1],[0,1,1]],
+ 'Mittel':[[0,1,2],[0,0,1,2],[0,1,1,2]],
+ 'Schwer':[[0,1,2,3],[0,1,0,2],[0,0,1,1,2],[0,1,2,2,3]]
+};
+var theme='Farben',level='Leicht',stars=0,answer=null,locked=false,timer=null;
+function glyph(it,s){
+  if(it.dot)return '<div style="width:'+(s-8)+'px;height:'+(s-8)+'px;border-radius:50%;background:'+it.col+'"></div>';
+  return '<i class="ti ti-'+it.ic+'" style="color:'+it.col+'" aria-hidden="true"></i>';
+}
+function buildChips(id,names,cur,setter){
+  var box=document.getElementById(id);box.innerHTML='';
+  names.forEach(function(nm){
+    var b=document.createElement('button');
+    b.className='chip'+(nm===cur?' on':'');b.textContent=nm;
+    b.addEventListener('click',function(){setter(nm)});
+    box.appendChild(b);
+  });
+}
+function chips(){
+  buildChips('themes',Object.keys(THEMES),theme,function(v){theme=v;chips();newRound()});
+  buildChips('levels',Object.keys(LEVELS),level,function(v){level=v;chips();newRound()});
+}
+function newRound(){
+  if(timer){clearTimeout(timer);timer=null}
+  var units=LEVELS[level],u=units[Math.floor(Math.random()*units.length)];
+  var items=shuffle(THEMES[theme].slice());
+  var len=u.length,n=len===2?5:(len===3?7:8);
+  var seqBox=document.getElementById('seq');seqBox.innerHTML='';
+  for(var i=0;i<n-1;i++){
+    var c=document.createElement('div');c.className='cell';
+    c.innerHTML=glyph(items[u[i%len]],76);
+    seqBox.appendChild(c);
+  }
+  var q=document.createElement('div');q.className='cell qc';q.id='q';q.textContent='?';
+  seqBox.appendChild(q);
+  answer=items[u[(n-1)%len]];
+  var opts=document.getElementById('opts');opts.innerHTML='';
+  shuffle(THEMES[theme].slice()).forEach(function(it){
+    var b=document.createElement('button');b.className='opt';
+    b.innerHTML=glyph(it,76)+'<span>'+it.n+'</span>';
+    b.addEventListener('click',function(){pick(it)});
+    opts.appendChild(b);
+  });
+  locked=false;
+  document.getElementById('msg').textContent='';
+}
+function pick(it){
+  if(locked)return;
+  var q=document.getElementById('q'),msg=document.getElementById('msg');
+  if(it===answer){
+    locked=true;
+    q.className='cell pop';q.innerHTML=glyph(answer,76);
+    stars++;document.getElementById('stars').textContent=stars;
+    msg.style.color='var(--ok)';msg.textContent='Super gemacht!';
+    winSound();
+    timer=setTimeout(newRound,1100);
+  }else{
+    msg.style.color='var(--bad)';msg.textContent='Nochmal probieren';
+    q.classList.remove('shake');void q.offsetWidth;q.classList.add('shake');
+  }
+}
+chips();newRound();
+</script>
+</body>
+</html>

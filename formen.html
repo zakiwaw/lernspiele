@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Formen">
+<title>Formen</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.stage{text-align:center}
+#target{display:inline-block;cursor:pointer}
+#name{font-size:44px;font-weight:600;margin:8px 0 0}
+.tip{font-size:19px;color:var(--muted);margin:6px 0 0}
+#opts{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
+.opt{flex:0 0 calc(33.333% - 14px);min-width:200px;min-height:190px;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:24px;background:var(--card);padding:12px}
+.opt:active{transform:scale(.97)}
+.opt.help{animation:pu .7s infinite;border:5px solid var(--accent)}
+@media (max-width:700px){.opt{flex-basis:calc(50% - 10px);min-width:0;min-height:130px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="index.html">Zurück</a>
+    <span class="score"><i class="ti ti-star" aria-hidden="true"></i><span id="stars">0</span></span>
+  </div>
+  <div class="chips" id="levels"></div>
+  <div class="stage">
+    <div id="target" role="button" aria-label="Form anhören"></div>
+    <p id="name"></p>
+    <p class="tip"><i class="ti ti-volume" aria-hidden="true"></i> Tippe auf die große Form, dann wird der Name vorgelesen</p>
+  </div>
+  <div id="opts"></div>
+  <p class="msg" id="msg"></p>
+</div>
+<script src="common.js"></script>
+<script>
+var NAMES={circle:'Kreis',star:'Stern',heart:'Herz',square:'Viereck',triangle:'Dreieck'};
+var SAY={circle:'Das ist ein Kreis',star:'Das ist ein Stern',heart:'Das ist ein Herz',square:'Das ist ein Viereck',triangle:'Das ist ein Dreieck'};
+var KEYS=['circle','star','heart','square','triangle'];
+var PAL=['#E24B4A','#378ADD','#EF9F27','#1D9E75','#D4537E','#7F77DD'];
+var LEVELS={'Leicht':{k:2,mix:false,label:'Leicht (2 Formen)'},'Mittel':{k:3,mix:false,label:'Mittel (3 Formen)'},'Alle 5':{k:5,mix:true,label:'Alle 5 Formen, bunt'}};
+var level='Leicht',stars=0,target=null,locked=false,wrong=0,timer=null,last=null,tcol=PAL[0];
+function starPts(){
+  var p=[];
+  for(var i=0;i<10;i++){
+    var r=i%2===0?46:19,a=-Math.PI/2+i*Math.PI/5;
+    p.push((50+r*Math.cos(a)).toFixed(1)+','+(54+r*Math.sin(a)).toFixed(1));
+  }
+  return p.join(' ');
+}
+var STAR=starPts();
+function shape(t,col,s){
+  var inner='';
+  if(t==='circle')inner='<circle cx="50" cy="50" r="42" fill="'+col+'"/>';
+  if(t==='square')inner='<rect x="12" y="12" width="76" height="76" rx="6" fill="'+col+'"/>';
+  if(t==='triangle')inner='<polygon points="50,10 92,86 8,86" fill="'+col+'"/>';
+  if(t==='star')inner='<polygon points="'+STAR+'" fill="'+col+'"/>';
+  if(t==='heart')inner='<path d="M50 88 C20 62 8 44 8 30 C8 18 18 10 29 10 C38 10 46 15 50 22 C54 15 62 10 71 10 C82 10 92 18 92 30 C92 44 80 62 50 88 Z" fill="'+col+'"/>';
+  return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 100 100" aria-hidden="true">'+inner+'</svg>';
+}
+function chips(){
+  var box=document.getElementById('levels');box.innerHTML='';
+  Object.keys(LEVELS).forEach(function(nm){
+    var b=document.createElement('button');
+    b.className='chip'+(nm===level?' on':'');
+    b.textContent=LEVELS[nm].label;
+    b.addEventListener('click',function(){level=nm;chips();newRound()});
+    box.appendChild(b);
+  });
+}
+function newRound(){
+  if(timer){clearTimeout(timer);timer=null}
+  var cfg=LEVELS[level];
+  var pool=KEYS.filter(function(k){return k!==last});
+  target=pool[Math.floor(Math.random()*pool.length)];
+  last=target;
+  tcol=PAL[Math.floor(Math.random()*PAL.length)];
+  var others=shuffle(KEYS.filter(function(k){return k!==target})).slice(0,cfg.k-1);
+  var list=shuffle([target].concat(others));
+  var cols=shuffle(PAL.filter(function(c){return c!==tcol}));
+  var size=Math.min(220,Math.round(window.innerHeight*0.26));
+  document.getElementById('target').innerHTML=shape(target,tcol,size);
+  document.getElementById('name').textContent=NAMES[target];
+  var opts=document.getElementById('opts');opts.innerHTML='';
+  list.forEach(function(k,i){
+    var b=document.createElement('button');b.className='opt';b.dataset.k=k;
+    b.innerHTML=shape(k,cfg.mix?cols[i%cols.length]:tcol,110);
+    b.addEventListener('click',function(){pick(k,b)});
+    opts.appendChild(b);
+  });
+  locked=false;wrong=0;
+  document.getElementById('msg').textContent='';
+}
+function pick(k,b){
+  if(locked)return;
+  var msg=document.getElementById('msg');
+  if(k===target){
+    locked=true;
+    b.classList.remove('help');b.classList.add('pop');
+    stars++;document.getElementById('stars').textContent=stars;
+    msg.style.color='var(--ok)';msg.textContent='Richtig! Das ist ein '+NAMES[target];
+    winSound();
+    setTimeout(function(){speak(SAY[target])},1000);
+    timer=setTimeout(newRound,2800);
+  }else{
+    wrong++;
+    msg.style.color='var(--bad)';msg.textContent='Fast! Probier nochmal';
+    b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');
+    var right=document.querySelector('.opt[data-k="'+target+'"]');
+    if(right)right.classList.add('help');
+  }
+}
+document.getElementById('target').addEventListener('click',function(){speak(SAY[target])});
+chips();newRound();
+</script>
+</body>
+</html>
