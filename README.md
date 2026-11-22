@@ -2,7 +2,7 @@
 
 Zwei kleine Lernspiele für Kinder, gemacht für das iPad (Touch, große Tasten, läuft im Browser).
 
-- **Formen** (ab 3 Jahren): Kreis, Stern, Herz, Viereck und Dreieck erkennen. Mit Vorlesen und Hilfe, wenn die falsche Form getippt wird.
+- **Formen** (ab 3 Jahren): Drei Spielarten: *Finden* (gleiche Form suchen), *Zeig mir* (die Stimme nennt eine Form, ohne Vorlage) und *Nachfahren* (Umriss mit dem Finger zeichnen). Eine Form kann gezielt geübt werden, falsche Formen werden beim Antippen benannt, nach 10 Aufgaben gibt es eine Pause mit einer Idee zum Suchen im Zimmer.
 - **Muster** (ab 5 Jahren): Was kommt als Nächstes? Themen Farben, Tiere, Blumen, Fahrzeuge und Flugzeuge, drei Stufen.
 
 ## Auf dem iPad spielen
