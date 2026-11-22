@@ -49,3 +49,34 @@ function speak(txt){
   }catch(e){}
 }
 function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+function lockScroll(){
+  document.addEventListener('touchmove',function(e){
+    var t=e.target;
+    while(t&&t!==document){if(t.classList&&t.classList.contains('overlay'))return;t=t.parentNode}
+    e.preventDefault();
+  },{passive:false});
+  document.addEventListener('gesturestart',function(e){e.preventDefault()});
+  document.addEventListener('contextmenu',function(e){e.preventDefault()});
+}
+function holdButton(el,ms,onOpen,onShort){
+  var t=null;
+  el.addEventListener('pointerdown',function(){
+    el.classList.add('holding');
+    t=setTimeout(function(){t=null;el.classList.remove('holding');onOpen()},ms);
+  });
+  function cancel(){
+    el.classList.remove('holding');
+    if(t){clearTimeout(t);t=null;if(onShort)onShort()}
+  }
+  el.addEventListener('pointerup',cancel);
+  el.addEventListener('pointerleave',cancel);
+  el.addEventListener('pointercancel',cancel);
+}
+function showHint(text){
+  var h=document.getElementById('hint');
+  if(!h)return;
+  h.textContent=text;
+  clearTimeout(showHint.t);
+  showHint.t=setTimeout(function(){h.textContent=''},2500);
+}

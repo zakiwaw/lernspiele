@@ -35,3 +35,21 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 @keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
 .shake{animation:sh .35s}.pop{animation:pop .5s}
+
+.ti-settings:before{content:"\eb20"}
+body.game{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:none}
+body.game button,body.game a{touch-action:manipulation}
+.app{display:flex;flex-direction:column;height:100%;max-width:1100px;margin:0 auto;gap:10px}
+.app .top{flex:none;margin:0}
+.gear{width:56px;height:56px;border:1.5px solid var(--line);border-radius:16px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--muted);transition:transform .2s}
+.gear.holding{transform:scale(1.2);border-color:var(--accent);color:var(--accent)}
+.hint{font-size:17px;color:var(--muted);flex:1;padding:0 12px}
+.main{flex:1;min-height:0;display:flex;flex-direction:column;gap:16px;align-items:center}
+.main.land{flex-direction:row}
+.main .stage{margin:0;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;flex:none}
+.bottom{flex:none;display:flex;align-items:center;gap:12px;min-height:72px}
+.bottom .msg{flex:1;margin:0;font-size:26px}
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:10;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:max(20px,env(safe-area-inset-top)) 24px 24px}
+.overlay h2{font-size:34px;margin:8px 0 20px}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.bigbtn{min-height:64px;padding:0 32px;font-size:24px;border:2px solid var(--accent);border-radius:18px;background:var(--accent-bg);color:var(--accent);font-weight:600}

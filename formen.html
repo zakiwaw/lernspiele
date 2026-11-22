@@ -9,40 +9,65 @@
 <title>Formen</title>
 <link rel="stylesheet" href="style.css">
 <style>
-.cap{font-size:15px;color:var(--muted);margin:0 0 6px}
-.chips{margin-bottom:14px}
-.stage{text-align:center}
-#target{display:inline-block;cursor:pointer}
-#name{font-size:44px;font-weight:600;margin:8px 0 0}
-.tip{font-size:19px;color:var(--muted);margin:6px 0 0}
-#askname{font-size:56px;font-weight:600;margin:8px 0 16px}
-.big{min-height:64px;padding:0 32px;font-size:24px;border:2px solid var(--accent);border-radius:18px;background:var(--accent-bg);color:var(--accent);font-weight:600}
-#opts{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}
-.opt{flex:0 0 calc(33.333% - 14px);min-width:200px;min-height:190px;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:24px;background:var(--card);padding:12px}
+#target{cursor:pointer;flex:none}
+#target svg{width:100%;height:100%;display:block}
+#name{font-size:40px;font-weight:600;margin:6px 0 0}
+.tip{font-size:17px;color:var(--muted);margin:4px 0 0}
+#askname{font-size:54px;font-weight:600;margin:0 0 20px}
+#opts{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;align-content:center;flex:none}
+.opt{width:var(--tile);height:var(--tile);flex:none;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:24px;background:var(--card);padding:0}
+.opt svg{width:72%;height:72%;display:block}
 .opt:active{transform:scale(.97)}
 .opt.help{animation:pu .7s infinite;border:5px solid var(--accent)}
-#cv{touch-action:none;border-radius:20px;background:var(--bg);max-width:100%}
-#pause{text-align:center;padding:40px 16px}
-#pause h2{font-size:38px;margin:0 0 16px}
-#pause p{font-size:24px;line-height:1.5;margin:0 0 28px}
-#next{width:100%;margin-top:16px}
-@media (max-width:700px){.opt{flex-basis:calc(50% - 10px);min-width:0;min-height:130px}#askname{font-size:40px}}
+#cv{touch-action:none;border-radius:20px;background:var(--bg);display:block}
+#clear{margin-top:10px;min-height:48px}
+#pause h2{font-size:40px;margin:0 0 16px}
+#pause p{font-size:26px;line-height:1.5;margin:0 0 28px;max-width:600px}
+#next{min-width:200px}
+.cap{font-size:16px;color:var(--muted);margin:0 0 8px}
+.set .chips{margin-bottom:22px}
 </style>
 </head>
-<body>
-<div class="wrap">
+<body class="game">
+<div class="app">
   <div class="top">
-    <a class="back" href="index.html">Zurück</a>
+    <button class="gear" id="gear" aria-label="Einstellungen (gedrückt halten)"><i class="ti ti-settings" aria-hidden="true"></i></button>
+    <span class="hint" id="hint"></span>
     <span class="score"><i class="ti ti-star" aria-hidden="true"></i><span id="stars">0</span></span>
   </div>
 
-  <div id="pause" class="stage" style="display:none">
-    <h2>Toll gemacht!</h2>
-    <p id="pausetext"></p>
-    <button class="big" id="resume">Weiter spielen</button>
+  <div class="main" id="main">
+    <div class="stage" id="stage">
+      <div id="target" role="button" aria-label="Form anhören"></div>
+      <p id="name"></p>
+      <p class="tip" id="tip"><i class="ti ti-volume" aria-hidden="true"></i> Tippe auf die große Form, dann wird der Name vorgelesen</p>
+      <div id="ask" style="display:none" class="center">
+        <p id="askname"></p>
+        <button class="bigbtn" id="again"><i class="ti ti-volume" aria-hidden="true"></i> Nochmal hören</button>
+      </div>
+      <div id="tracewrap" style="display:none" class="center">
+        <canvas id="cv"></canvas>
+        <button class="chip" id="clear">Nochmal von vorn</button>
+      </div>
+    </div>
+    <div id="opts"></div>
   </div>
 
-  <div id="play">
+  <div class="bottom">
+    <p class="msg" id="msg"></p>
+    <button class="bigbtn" id="next" style="display:none">Weiter</button>
+  </div>
+</div>
+
+<div id="pause" class="overlay center" style="display:none">
+  <h2>Toll gemacht!</h2>
+  <p id="pausetext"></p>
+  <button class="bigbtn" id="resume">Weiter spielen</button>
+</div>
+
+<div id="settings" class="overlay set" style="display:none">
+  <div class="wrap">
+    <h2>Einstellungen</h2>
     <p class="cap">Spielart</p>
     <div class="chips" id="modes"></div>
     <p class="cap">Diese Form üben</p>
@@ -51,28 +76,11 @@
       <p class="cap">Schwierigkeit</p>
       <div class="chips" id="levels"></div>
     </div>
-
-    <div class="stage">
-      <div id="target" role="button" aria-label="Form anhören"></div>
-      <p id="name"></p>
-      <p class="tip" id="tip"><i class="ti ti-volume" aria-hidden="true"></i> Tippe auf die große Form, dann wird der Name vorgelesen</p>
-
-      <div id="ask" style="display:none">
-        <p id="askname"></p>
-        <button class="big" id="again"><i class="ti ti-volume" aria-hidden="true"></i> Nochmal hören</button>
-      </div>
-
-      <div id="tracewrap" style="display:none">
-        <canvas id="cv"></canvas>
-        <p><button class="chip" id="clear">Nochmal von vorn</button></p>
-      </div>
-    </div>
-
-    <div id="opts"></div>
-    <p class="msg" id="msg"></p>
-    <button class="big" id="next" style="display:none">Weiter</button>
+    <p style="margin-top:28px"><button class="bigbtn" id="done">Fertig, los geht's</button></p>
+    <p style="margin-top:28px"><a class="back" href="index.html">Zurück zum Menü</a></p>
   </div>
 </div>
+
 <script src="common.js"></script>
 <script>
 var NAMES={circle:'Kreis',star:'Stern',heart:'Herz',square:'Viereck',triangle:'Dreieck'};
@@ -115,7 +123,7 @@ function shape(t,col,s){
   if(t==='triangle')inner='<polygon points="50,10 92,86 8,86" fill="'+col+'"/>';
   if(t==='star')inner='<polygon points="'+STAR+'" fill="'+col+'"/>';
   if(t==='heart')inner='<path d="M50 88 C20 62 8 44 8 30 C8 18 18 10 29 10 C38 10 46 15 50 22 C54 15 62 10 71 10 C82 10 92 18 92 30 C92 44 80 62 50 88 Z" fill="'+col+'"/>';
-  return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 100 100" aria-hidden="true">'+inner+'</svg>';
+  return '<svg viewBox="0 0 100 100" aria-hidden="true">'+inner+'</svg>';
 }
 
 function row(id,items,cur,cb){
@@ -129,9 +137,9 @@ function row(id,items,cur,cb){
   });
 }
 function renderChips(){
-  row('modes',MODES,mode,function(k){mode=k;renderChips();newRound()});
-  row('foci',FOCI,focus,function(k){focus=k;seen=0;renderChips();newRound()});
-  row('levels',LV,level,function(k){level=k;renderChips();newRound()});
+  row('modes',MODES,mode,function(k){mode=k;renderChips()});
+  row('foci',FOCI,focus,function(k){focus=k;seen=0;renderChips()});
+  row('levels',LV,level,function(k){level=k;renderChips()});
   $('levelbox').style.display=mode==='trace'?'none':'';
 }
 
@@ -149,25 +157,49 @@ function pickTarget(){
 }
 function cfgNow(){return LV.filter(function(l){return l.k===level})[0]}
 
+var TILE=140,TS=200;
+function layout(){
+  var main=$('main'),W=main.clientWidth||600,H=main.clientHeight||500,gap=16;
+  var land=window.innerWidth>window.innerHeight;
+  main.className='main'+(land?' land':'');
+  var isT=mode==='trace';
+  var stageW,stageH,optW=0,optH=0;
+  if(isT){stageW=W;stageH=H}
+  else if(land){stageW=Math.floor(W*0.46);stageH=H;optW=W-stageW-gap;optH=H}
+  else{stageW=W;stageH=Math.floor(H*0.44);optW=W;optH=H-stageH-gap}
+  $('stage').style.width=stageW+'px';
+  $('stage').style.height=stageH+'px';
+  if(!isT){
+    var n=cfgNow().n,cols=land?2:Math.min(n,3),rows=Math.ceil(n/cols);
+    TILE=Math.max(80,Math.floor(Math.min((optW-(cols-1)*gap)/cols,(optH-(rows-1)*gap)/rows,300)));
+    $('opts').style.width=optW+'px';
+    $('opts').style.height=optH+'px';
+    $('opts').style.setProperty('--tile',TILE+'px');
+  }
+  TS=Math.max(100,Math.floor(Math.min(stageW-32,stageH-150,340)));
+  $('target').style.width=TS+'px';
+  $('target').style.height=TS+'px';
+}
+
 function newRound(){
   if(timer){clearTimeout(timer);timer=null}
   $('pause').style.display='none';
-  $('play').style.display='';
+  $('settings').style.display='none';
   target=pickTarget();last=target;
   tcol=rand(PAL);
   locked=false;wrong=0;
   $('msg').textContent='';
   $('next').style.display='none';
   var isF=mode==='find',isA=mode==='ask',isT=mode==='trace';
-  $('target').style.display=isF?'inline-block':'none';
+  $('target').style.display=isF?'block':'none';
   $('name').style.display=isF?'block':'none';
   $('tip').style.display=isF?'block':'none';
-  $('ask').style.display=isA?'block':'none';
-  $('tracewrap').style.display=isT?'block':'none';
+  $('ask').style.display=isA?'flex':'none';
+  $('tracewrap').style.display=isT?'flex':'none';
   $('opts').style.display=isT?'none':'flex';
+  layout();
   if(isF){
-    var size=Math.min(220,Math.round(window.innerHeight*0.26));
-    $('target').innerHTML=shape(target,tcol,size);
+    $('target').innerHTML=shape(target,tcol);
     $('name').textContent=NAMES[target];
   }
   if(isA){
@@ -189,7 +221,7 @@ function buildOptions(){
   var opts=$('opts');opts.innerHTML='';
   list.forEach(function(k,i){
     var b=document.createElement('button');b.className='opt';b.dataset.k=k;
-    b.innerHTML=shape(k,cfg.mix?cols[i%cols.length]:tcol,110);
+    b.innerHTML=shape(k,cfg.mix?cols[i%cols.length]:tcol);
     b.addEventListener('click',function(){pick(k,b)});
     opts.appendChild(b);
   });
@@ -211,8 +243,7 @@ function proceed(){
   if(done>=PER_SESSION)showPause();else newRound();
 }
 function showPause(){
-  $('play').style.display='none';
-  $('pause').style.display='block';
+  $('pause').style.display='flex';
   $('pausetext').textContent='Zeit für eine Pause. Sucht zusammen '+TIPS[target];
   done=0;
 }
@@ -269,9 +300,9 @@ function tracePath(){
 }
 function setupTrace(){
   cv=$('cv');
-  var wrap=$('tracewrap');
-  S=Math.min(520,Math.floor(Math.min(wrap.clientWidth||300,window.innerHeight*0.5)));
-  if(S<220)S=260;
+  var st=$('stage');
+  S=Math.floor(Math.min((st.clientWidth||400)-24,(st.clientHeight||500)-90,560));
+  if(S<200)S=240;
   var dpr=Math.min(2,window.devicePixelRatio||1);
   cv.style.width=S+'px';cv.style.height=S+'px';
   cv.width=Math.round(S*dpr);cv.height=Math.round(S*dpr);
@@ -326,12 +357,30 @@ function initTraceEvents(){
   c.addEventListener('pointercancel',end);
 }
 
+function openSettings(){
+  if(timer){clearTimeout(timer);timer=null}
+  renderChips();
+  $('settings').style.display='block';
+}
+holdButton($('gear'),700,openSettings,function(){showHint('Zahnrad gedrückt halten, dann öffnen sich die Einstellungen')});
+$('done').addEventListener('click',function(){done=0;newRound()});
 $('target').addEventListener('click',function(){speak(SAY[target])});
 $('again').addEventListener('click',function(){speak('Zeig mir '+ART[target])});
 $('askname').addEventListener('click',function(){speak('Zeig mir '+ART[target])});
 $('clear').addEventListener('click',function(){if(!locked)setupTrace()});
 $('next').addEventListener('click',proceed);
 $('resume').addEventListener('click',function(){done=0;newRound()});
+var rt=null;
+function onResize(){
+  clearTimeout(rt);
+  rt=setTimeout(function(){
+    layout();
+    if(mode==='trace'&&!locked&&$('settings').style.display==='none')setupTrace();
+  },150);
+}
+window.addEventListener('resize',onResize);
+window.addEventListener('orientationchange',onResize);
+lockScroll();
 initTraceEvents();
 renderChips();newRound();
 </script>
