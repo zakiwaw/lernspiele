@@ -11,7 +11,7 @@ const NAMES: Record<FormKey, string> = { circle: "Kreis", star: "Stern", heart: 
 const SAY: Record<FormKey, string> = { circle: "Das ist ein Kreis", star: "Das ist ein Stern", heart: "Das ist ein Herz", square: "Das ist ein Viereck", triangle: "Das ist ein Dreieck" };
 const ART: Record<FormKey, string> = { circle: "den Kreis", star: "den Stern", heart: "das Herz", square: "das Viereck", triangle: "das Dreieck" };
 const KEYS: FormKey[] = ["circle", "star", "heart", "square", "triangle"];
-const PAL = ["#E24B4A", "#378ADD", "#EF9F27", "#1D9E75", "#D4537E", "#7F77DD"];
+const PAL = ["#FF6B6B", "#4D96FF", "#FFD93D", "#6BCB77", "#C77DFF", "#FF922B"];
 const LV: Record<LevelName, { n: number; mix: boolean }> = { Leicht: { n: 2, mix: false }, Mittel: { n: 3, mix: false }, Bunt: { n: 5, mix: true } };
 
 function rand<T>(a: T[]): T { return a[Math.floor(Math.random() * a.length)]; }
@@ -31,9 +31,9 @@ const STAR = STARV.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")
 
 function Shape({ t, col, size = "100%" }: { t: FormKey; col: string; size?: number | string }) {
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true">
+    <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true" style={{ filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.18))" }}>
       {t === "circle" && <circle cx="50" cy="50" r="42" fill={col} />}
-      {t === "square" && <rect x="12" y="12" width="76" height="76" rx="6" fill={col} />}
+      {t === "square" && <rect x="12" y="12" width="76" height="76" rx="10" fill={col} />}
       {t === "triangle" && <polygon points="50,10 92,86 8,86" fill={col} />}
       {t === "star" && <polygon points={STAR} fill={col} />}
       {t === "heart" && <path d="M50 88 C20 62 8 44 8 30 C8 18 18 10 29 10 C38 10 46 15 50 22 C54 15 62 10 71 10 C82 10 92 18 92 30 C92 44 80 62 50 88 Z" fill={col} />}
@@ -87,7 +87,6 @@ export default function FormenGame({ config, onSolved, onWrong }: { config: Form
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
-  // Trace state
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const ptsRef = useRef<[number, number][]>([]);
   const covRef = useRef<boolean[]>([]);
@@ -176,7 +175,6 @@ export default function FormenGame({ config, onSolved, onWrong }: { config: Form
     }
   };
 
-  // Trace drawing
   useEffect(() => {
     if (config.mode !== "trace") return;
     const canvas = canvasRef.current;
@@ -200,11 +198,11 @@ export default function FormenGame({ config, onSolved, onWrong }: { config: Form
     ctx.beginPath();
     pts.forEach((p, i) => { if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); });
     ctx.closePath();
-    ctx.fillStyle = tcol + "33";
+    ctx.fillStyle = tcol + "22";
     ctx.fill();
     ctx.setLineDash([10, 12]);
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = "#888780";
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
     ctx.stroke();
     ctx.setLineDash([]);
   }, [config.mode, target, tcol, round]);
@@ -258,32 +256,42 @@ export default function FormenGame({ config, onSolved, onWrong }: { config: Form
     ctx.stroke();
   };
 
+  const panel: React.CSSProperties = {
+    width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    padding: "16px 12px", borderRadius: 28,
+    background: "rgba(255,255,255,0.22)", backdropFilter: "blur(4px)",
+    border: "2px solid rgba(255,255,255,0.35)", boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+    minHeight: 260,
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center", width: "100%", height: "100%" }}>
-      <div className="card" style={{ width: "100%", flex: "1 1 auto", minHeight: 260, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={panel}>
         {config.mode === "find" && (
           <>
-            <button onClick={() => speak(SAY[target])} aria-label="Form anhören" style={{ background: "none", border: "none", cursor: "pointer" }}>
-              <Shape t={target} col={tcol} size={220} />
+            <button onClick={() => speak(SAY[target])} aria-label="Form anhören" style={{ background: "none", border: "none", cursor: "pointer", padding: 8, borderRadius: 24 }}>
+              <div style={{ animation: "floaty 3.5s ease-in-out infinite" }}>
+                <Shape t={target} col={tcol} size={220} />
+              </div>
             </button>
-            <p style={{ fontSize: 40, fontWeight: 700, margin: "8px 0 0" }}>{NAMES[target]}</p>
-            <p style={{ fontSize: 18, color: "var(--muted)", margin: "4px 0 0" }}><i className="ti ti-volume" aria-hidden="true"></i> Tippe auf die große Form</p>
+            <p style={{ fontSize: "clamp(34px,5vw,52px)", fontWeight: 800, margin: "4px 0 0", color: "#fff", textShadow: "0 3px 12px rgba(0,0,0,0.25)" }}>{NAMES[target]}</p>
+            <p style={{ fontSize: 20, color: "rgba(255,255,255,0.95)", margin: "4px 0 0", fontWeight: 700, textShadow: "0 2px 6px rgba(0,0,0,0.2)" }}><i className="ti ti-volume" aria-hidden="true"></i> Tippe auf die große Form</p>
           </>
         )}
         {config.mode === "ask" && (
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: 48, fontWeight: 700, margin: "0 0 20px" }}>Zeig mir {ART[target]}</p>
-            <button className="btn btn-primary" onClick={() => speak(`Zeig mir ${ART[target]}`)}>
-              <i className="ti ti-volume" aria-hidden="true" style={{ fontSize: 24 }}></i> Nochmal hören
+            <p style={{ fontSize: "clamp(34px,5vw,56px)", fontWeight: 800, margin: "0 0 20px", color: "#fff", textShadow: "0 3px 12px rgba(0,0,0,0.25)" }}>Zeig mir {ART[target]}</p>
+            <button className="btn btn-primary" onClick={() => speak(`Zeig mir ${ART[target]}`)} style={{ minHeight: 72, fontSize: 24, background: "rgba(255,255,255,0.95)", color: "#2C2C2A", border: "none" }}>
+              <i className="ti ti-volume" aria-hidden="true" style={{ fontSize: 28 }}></i> Nochmal hören
             </button>
           </div>
         )}
         {config.mode === "trace" && (
           <div style={{ textAlign: "center", width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <p style={{ fontSize: 28, fontWeight: 700, margin: "0 0 8px" }}>Fahr {ART[target]} nach</p>
+            <p style={{ fontSize: "clamp(26px,4vw,40px)", fontWeight: 800, margin: "0 0 8px", color: "#fff", textShadow: "0 3px 12px rgba(0,0,0,0.25)" }}>Fahr {ART[target]} nach</p>
             <canvas
               ref={canvasRef}
-              style={{ touchAction: "none", borderRadius: 20, background: "var(--bg-deep)", maxWidth: "100%" }}
+              style={{ touchAction: "none", borderRadius: 24, background: "rgba(255,255,255,0.18)", border: "2px solid rgba(255,255,255,0.35)", maxWidth: "100%" }}
               onPointerDown={(e) => {
                 if (traceLockedRef.current) return;
                 drawingRef.current = true;
@@ -302,35 +310,48 @@ export default function FormenGame({ config, onSolved, onWrong }: { config: Form
               onPointerUp={() => { drawingRef.current = false; }}
               onPointerCancel={() => { drawingRef.current = false; }}
             />
-            <button className="chip" style={{ marginTop: 12, minHeight: 64 }} onClick={() => { if (!traceLockedRef.current) setRound((r) => r + 1); }}>Nochmal von vorn</button>
+            <button style={{ marginTop: 12, minHeight: 64, padding: "0 24px", borderRadius: 18, background: "rgba(255,255,255,0.92)", color: "#2C2C2A", fontSize: 20, fontWeight: 700, border: "none" }} onClick={() => { if (!traceLockedRef.current) setRound((r) => r + 1); }}>Nochmal von vorn</button>
           </div>
         )}
       </div>
 
       {config.mode !== "trace" && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center", width: "100%" }}>
-          {opts.map((o) => (
-            <button
-              key={`${round}-${o.k}-${o.c}`}
-              onClick={() => pick(o.k)}
-              className={helpKey === o.k ? "pop" : ""}
-              style={{
-                width: 140, height: 140, maxWidth: "42vw", maxHeight: "42vw",
-                border: helpKey === o.k ? "5px solid var(--accent)" : "2px solid var(--line)",
-                borderRadius: 24, background: "var(--card)", display: "flex", alignItems: "center", justifyContent: "center",
-                animation: helpKey === o.k ? "pu .7s infinite" : undefined,
-              }}
-              aria-label={NAMES[o.k]}
-            >
-              <Shape t={o.k} col={o.c} size="72%" />
-            </button>
-          ))}
+          {opts.map((o) => {
+            const isHelp = helpKey === o.k;
+            return (
+              <button
+                key={`${round}-${o.k}-${o.c}`}
+                onClick={() => pick(o.k)}
+                style={{
+                  width: "clamp(120px, 22vw, 170px)", height: "clamp(120px, 22vw, 170px)",
+                  border: isHelp ? "5px solid #FFD966" : "4px solid rgba(255,255,255,0.85)",
+                  borderRadius: 28, background: "rgba(255,255,255,0.92)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: isHelp ? "0 0 0 6px rgba(255,217,102,0.35), 0 10px 24px rgba(0,0,0,0.15)" : "0 10px 24px rgba(0,0,0,0.12)",
+                  transform: isHelp ? "scale(1.04)" : undefined,
+                  transition: "transform 0.15s",
+                }}
+                aria-label={NAMES[o.k]}
+              >
+                <Shape t={o.k} col={o.c} size="72%" />
+              </button>
+            );
+          })}
         </div>
       )}
 
-      <p style={{ minHeight: 40, fontSize: 28, fontWeight: 700, color: msgOk ? "var(--ok)" : "var(--bad)", textAlign: "center", margin: 0 }}>
-        {msg}
-      </p>
+      <div aria-live="polite" style={{ minHeight: 52, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {msg && (
+          <p style={{
+            fontSize: "clamp(24px,3.5vw,36px)", fontWeight: 800, textAlign: "center", margin: 0,
+            padding: "10px 20px", borderRadius: 16,
+            background: msgOk ? "rgba(255,249,196,0.95)" : "rgba(255,235,238,0.95)",
+            color: msgOk ? "#5C4300" : "#A32D2D",
+            boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
+          }}>{msg}</p>
+        )}
+      </div>
     </div>
   );
 }

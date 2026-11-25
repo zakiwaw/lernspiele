@@ -7,6 +7,11 @@ import { useApp } from "./AppProvider";
 import { getLevels, LevelDef } from "@/lib/worlds";
 import { WorldDef } from "@/lib/types";
 import { speak, winSound } from "@/lib/audio";
+import Landscape from "./Landscape";
+import FoxFidi from "./companions/FoxFidi";
+import OwlUlli from "./companions/OwlUlli";
+import BeaverBenno from "./companions/BeaverBenno";
+import RabbitHanni from "./companions/RabbitHanni";
 import styles from "./WorldPlay.module.css";
 
 const TASKS_PER_MISSION = 10;
@@ -24,6 +29,13 @@ function starsForWrong(wrong: number): number {
   return 1;
 }
 
+function Companion({ id, className }: { id: WorldDef["id"]; className?: string }) {
+  if (id === "formen") return <FoxFidi className={className} />;
+  if (id === "muster") return <OwlUlli className={className} />;
+  if (id === "zahlen") return <BeaverBenno className={className} />;
+  return <RabbitHanni className={className} />;
+}
+
 export default function WorldPlay({
   world,
   renderGame,
@@ -38,6 +50,7 @@ export default function WorldPlay({
   const [taskIndex, setTaskIndex] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [finished, setFinished] = useState<null | { stars: number; pause: string }>(null);
+  const [companionSays, setCompanionSays] = useState("");
 
   useEffect(() => {
     if (!activeProfile) router.replace("/");
@@ -61,15 +74,21 @@ export default function WorldPlay({
     return !!worldProgress?.levels[prev.id]?.completed;
   };
 
+  const sayCompanion = useCallback((text: string) => {
+    setCompanionSays(text);
+    speak(text);
+    window.setTimeout(() => setCompanionSays(""), 3500);
+  }, []);
+
   const startLevel = (level: LevelDef, index: number) => {
     if (!profileId) return;
-    if (!isUnlocked(index)) { speak("Diese Stufe ist noch gesperrt."); return; }
-    if (playLimitReached(profileId)) { speak("Die Spielzeit ist für heute vorbei. Mach eine Pause."); return; }
+    if (!isUnlocked(index)) { sayCompanion("Diese Stufe ist noch gesperrt."); return; }
+    if (playLimitReached(profileId)) { sayCompanion("Die Spielzeit ist für heute vorbei. Mach eine Pause."); return; }
     setActiveLevel(level);
     setTaskIndex(0);
     setWrongCount(0);
     setFinished(null);
-    speak(`Mission ${level.title}. Zehn Aufgaben.`);
+    sayCompanion(`Los geht's! ${level.title}. Zehn Aufgaben.`);
   };
 
   const onSolved = useCallback(() => {
@@ -83,12 +102,14 @@ export default function WorldPlay({
           completeMission(profileId, world.id, activeLevel.id, stars, activeLevel.title);
         }
         winSound();
-        setTimeout(() => speak(`Toll gemacht! Du hast ${stars} Sterne bekommen. ${pause}`), 500);
+        setTimeout(() => sayCompanion(`Toll gemacht! Du hast ${stars} Sterne bekommen. ${pause}`), 500);
         return next;
       }
+      setCompanionSays("Super!");
+      window.setTimeout(() => setCompanionSays(""), 1200);
       return next;
     });
-  }, [activeLevel, completeMission, profileId, world.id, wrongCount]);
+  }, [activeLevel, completeMission, profileId, sayCompanion, world.id, wrongCount]);
 
   const onWrong = useCallback(() => { setWrongCount((w) => w + 1); }, []);
 
@@ -96,11 +117,13 @@ export default function WorldPlay({
 
   if (playLimitReached(profileId) && !activeLevel) {
     return (
-      <div className={styles.page} style={{ background: `linear-gradient(180deg, ${world.colorSoft}, var(--bg))` }}>
-        <div className={styles.limitBox}>
-          <h1 style={{ fontSize: 40, margin: 0 }}>Pause für heute</h1>
-          <p style={{ fontSize: 24, color: "var(--muted)" }}>Die Spielzeit ist für heute vorbei. Morgen geht es weiter.</p>
-          <Link href="/" className="btn btn-primary" style={{ minHeight: 64 }}>Zurück zur Karte</Link>
+      <div className={styles.scenePage}>
+        <Landscape landscape={world.landscape} />
+        <div className={styles.sceneShade} />
+        <div className={styles.centerBox}>
+          <h1 className={styles.bigTitle}>Pause für heute</h1>
+          <p className={styles.bigText}>Die Spielzeit ist für heute vorbei. Morgen geht es weiter.</p>
+          <Link href="/" className={styles.playBtn}>Zurück zur Karte</Link>
         </div>
       </div>
     );
@@ -108,21 +131,22 @@ export default function WorldPlay({
 
   if (activeLevel && finished) {
     return (
-      <div className={styles.page} style={{ background: `linear-gradient(180deg, ${world.colorSoft}, var(--bg))` }}>
-        <div className={styles.doneBox}>
-          <h1 style={{ fontSize: 44, margin: 0 }}>Toll gemacht!</h1>
-          <p style={{ fontSize: 24, margin: "8px 0 0" }}>{activeLevel.title} geschafft</p>
+      <div className={styles.scenePage}>
+        <Landscape landscape={world.landscape} />
+        <div className={styles.sceneShade} />
+        <div className={styles.centerBox}>
+          <div className={styles.doneCompanion}><Companion id={world.id} className={styles.companionSvg} /></div>
+          <h1 className={styles.bigTitle}>Toll gemacht!</h1>
+          <p className={styles.bigText}>{activeLevel.title} geschafft</p>
           <div className={styles.doneStars} aria-label={`${finished.stars} Sterne`}>
             {[1, 2, 3].map((i) => (
-              <i key={i} className="ti ti-star-filled" aria-hidden="true" style={{ fontSize: 56, color: i <= finished!.stars ? "var(--star)" : "var(--line)" }}></i>
+              <i key={i} className="ti ti-star-filled" aria-hidden="true" style={{ fontSize: 62, color: i <= finished!.stars ? "#FFD966" : "rgba(255,255,255,0.35)", filter: i <= finished!.stars ? "drop-shadow(0 4px 8px rgba(0,0,0,0.2))" : undefined }}></i>
             ))}
           </div>
-          <div className={styles.pauseIdea}>
-            <strong>Pause-Idee:</strong> {finished.pause}
-          </div>
+          <div className={styles.pauseIdea}><strong>Pause-Idee:</strong> {finished.pause}</div>
           <div className={styles.doneActions}>
-            <button className="btn btn-primary" style={{ minHeight: 64 }} onClick={() => { setActiveLevel(null); setFinished(null); }}>Zurück zum Weg</button>
-            <Link href="/" className="btn" style={{ minHeight: 64 }}>Zur Karte</Link>
+            <button className={styles.playBtn} onClick={() => { setActiveLevel(null); setFinished(null); }}>Zurück zum Weg</button>
+            <Link href="/" className={styles.ghostBtn}>Zur Karte</Link>
           </div>
         </div>
       </div>
@@ -131,22 +155,37 @@ export default function WorldPlay({
 
   if (activeLevel) {
     return (
-      <div className={styles.page} style={{ background: `linear-gradient(180deg, ${world.colorSoft}, var(--bg))` }}>
+      <div className={styles.scenePage}>
+        <Landscape landscape={world.landscape} />
+        <div className={styles.playShade} />
         <header className={styles.playHeader}>
-          <button className="btn" style={{ minHeight: 64 }} onClick={() => { setActiveLevel(null); setFinished(null); }}>Zurück</button>
-          <div className={styles.playTitle}>
-            <div style={{ fontSize: 18, color: "var(--muted)" }}>{world.name}</div>
-            <div style={{ fontSize: 28, fontWeight: 700 }}>{activeLevel.title}</div>
+          <button className={styles.hudBtn} onClick={() => { setActiveLevel(null); setFinished(null); }}>
+            <i className="ti ti-arrow-left" aria-hidden="true"></i> Zurück
+          </button>
+          <div className={styles.playTitleWrap}>
+            <div className={styles.playWorld}>{world.name}</div>
+            <div className={styles.playLevel}>{activeLevel.title}</div>
           </div>
           <div className={styles.taskBadge} aria-label={`Aufgabe ${Math.min(taskIndex + 1, TASKS_PER_MISSION)} von ${TASKS_PER_MISSION}`}>
             {Math.min(taskIndex + 1, TASKS_PER_MISSION)} / {TASKS_PER_MISSION}
           </div>
         </header>
         <div className={styles.progressBar} aria-hidden="true">
-          <div className={styles.progressFill} style={{ width: `${(taskIndex / TASKS_PER_MISSION) * 100}%`, background: world.color }} />
+          <div className={styles.progressFill} style={{ width: `${(taskIndex / TASKS_PER_MISSION) * 100}%`, background: `linear-gradient(90deg, ${world.color}, #FFD966)` }} />
         </div>
         <main className={styles.playMain}>
-          {renderGame(activeLevel, taskIndex, onSolved, onWrong)}
+          <aside className={styles.companionPane}>
+            <button className={styles.companionBtn} onClick={() => sayCompanion(`Ich bin ${world.companion}. Du schaffst das!`)} aria-label={`${world.companion} sprechen lassen`}>
+              <Companion id={world.id} className={styles.companionSvg} />
+              <span className={styles.speechIcon} aria-hidden="true"><i className="ti ti-volume"></i></span>
+            </button>
+            <div className={styles.speechBubble} aria-live="polite">
+              {companionSays || `Hilf mir bei: ${activeLevel.title}`}
+            </div>
+          </aside>
+          <section className={styles.gamePane} key={`${activeLevel.id}-${taskIndex}`}>
+            {renderGame(activeLevel, taskIndex, onSolved, onWrong)}
+          </section>
         </main>
       </div>
     );
@@ -164,7 +203,6 @@ export default function WorldPlay({
           <i className="ti ti-volume" aria-hidden="true" style={{ fontSize: 24 }}></i>
         </button>
       </header>
-
       <main className={styles.path}>
         {levels.map((level, i) => {
           const unlocked = isUnlocked(i);
@@ -189,9 +227,7 @@ export default function WorldPlay({
                   ))}
                 </div>
               </div>
-              <div className={styles.stationStatus}>
-                {done ? "Geschafft" : unlocked ? "Offen" : "Gesperrt"}
-              </div>
+              <div className={styles.stationStatus}>{done ? "Geschafft" : unlocked ? "Offen" : "Gesperrt"}</div>
             </button>
           );
         })}
