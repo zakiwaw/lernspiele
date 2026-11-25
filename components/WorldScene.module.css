@@ -1,0 +1,200 @@
+.scene {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  min-height: 320px;
+  cursor: pointer;
+  border: 3px solid rgba(255,255,255,0.5);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  text-align: left;
+  padding: 0;
+  isolation: isolate;
+  transition: transform 0.15s;
+}
+.scene:active { transform: scale(0.985); }
+.scene:focus-visible { outline: 4px solid var(--accent); outline-offset: 2px; }
+
+.landscape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.15) 65%, rgba(0,0,0,0.45) 100%);
+  pointer-events: none;
+}
+
+.top {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  z-index: 2;
+}
+
+.age {
+  background: rgba(255,255,255,0.92);
+  color: #2C2C2A;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.stars {
+  background: rgba(255,255,255,0.92);
+  color: #2C2C2A;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 20px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.soon {
+  background: rgba(44,44,42,0.75);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 20px;
+  gap: 16px;
+  z-index: 2;
+}
+
+.companionWrap {
+  position: relative;
+  width: min(42%, 240px);
+  min-width: 140px;
+  aspect-ratio: 200 / 220;
+  flex: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2));
+  animation: floaty 4s ease-in-out infinite;
+}
+.companionWrap:focus-visible { outline: 4px solid #fff; outline-offset: 4px; border-radius: 16px; }
+.companionWrap:active { transform: scale(0.97); }
+
+.companion {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.companionWrap :global(.companion-head) {
+  transform-origin: 100px 100px;
+  animation: headBob 3.5s ease-in-out infinite;
+}
+.companionWrap :global(.companion-tail) {
+  transform-origin: 150px 145px;
+  animation: tailWag 2.2s ease-in-out infinite;
+}
+.companionWrap :global(.companion-wing-l) {
+  transform-origin: 60px 120px;
+  animation: wingL 2.8s ease-in-out infinite;
+}
+.companionWrap :global(.companion-wing-r) {
+  transform-origin: 140px 120px;
+  animation: wingR 2.8s ease-in-out infinite;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes headBob {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(2.5deg); }
+  70% { transform: rotate(-2deg); }
+}
+@keyframes tailWag {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(8deg); }
+}
+@keyframes wingL {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(6deg); }
+}
+@keyframes wingR {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-6deg); }
+}
+
+.speechBubble {
+  position: absolute;
+  top: 4%;
+  right: 2%;
+  width: 44px;
+  height: 44px;
+  background: white;
+  color: #2C2C2A;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.info {
+  flex: 1;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  padding-bottom: 8px;
+  min-width: 0;
+}
+.worldName {
+  font-size: clamp(28px, 4vw, 44px);
+  margin: 0 0 4px;
+  line-height: 1.1;
+}
+.companionName {
+  font-size: clamp(18px, 2.5vw, 24px);
+  margin: 0 0 14px;
+  opacity: 0.95;
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0 28px;
+  border-radius: 16px;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 700px) {
+  .scene { min-height: 280px; }
+  .content { padding: 16px; }
+  .companionWrap { min-width: 120px; width: 38%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .companionWrap, .companionWrap :global(.companion-head),
+  .companionWrap :global(.companion-tail),
+  .companionWrap :global(.companion-wing-l),
+  .companionWrap :global(.companion-wing-r) { animation: none !important; }
+}
