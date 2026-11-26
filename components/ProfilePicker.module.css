@@ -1,0 +1,53 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, #F6F3EB 0%, #E8F0E0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+@media (prefers-color-scheme: dark) {
+  .overlay { background: linear-gradient(180deg, #1D1D1B 0%, #243020 100%); }
+}
+.inner { text-align: center; width: 100%; max-width: 720px; }
+.title { font-size: clamp(36px, 6vw, 56px); margin: 0 0 8px; }
+.sub { font-size: 24px; color: var(--muted); margin: 0 0 32px; }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+.card {
+  background: var(--card);
+  border: 3px solid var(--line);
+  border-radius: 28px;
+  padding: 32px 24px;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.1s, border-color 0.2s;
+}
+.card:active { transform: scale(0.97); }
+.card:hover, .card:focus-visible { border-color: var(--accent); outline: none; }
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  font-weight: 700;
+  color: white;
+}
+.avatar[data-profile="noah"] { background: linear-gradient(135deg, #5B9BD5, #2E75B6); }
+.avatar[data-profile="hidaya"] { background: linear-gradient(135deg, #F0A0C0, #D4537E); }
+.initial { line-height: 1; }
+.name { font-size: 36px; font-weight: 700; }
+.age { font-size: 22px; color: var(--muted); }

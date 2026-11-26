@@ -1,0 +1,34 @@
+.landscape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.sunGroup { animation: sunPulse 6s ease-in-out infinite; transform-origin: 690px 85px; }
+.cloudA { animation: cloudDrift 18s ease-in-out infinite alternate; }
+.cloudB { animation: cloudDrift 22s ease-in-out infinite alternate-reverse; }
+.sway { animation: sway 4.5s ease-in-out infinite; transform-origin: bottom center; }
+.swaySlow { animation: sway 6s ease-in-out infinite; transform-origin: bottom center; }
+.flowerA { animation: flowerBob 3.2s ease-in-out infinite; transform-origin: bottom center; }
+.flowerB { animation: flowerBob 3.8s ease-in-out infinite reverse; transform-origin: bottom center; }
+.birdA { animation: birdFly 12s linear infinite; }
+.birdB { animation: birdFly 15s linear infinite reverse; }
+.twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+.twinkleB { animation: twinkle 3.1s ease-in-out infinite 0.8s; }
+.moonFloat { animation: moonFloat 7s ease-in-out infinite; transform-origin: 675px 95px; }
+.waveA { animation: waveMove 5s ease-in-out infinite alternate; }
+
+@keyframes sunPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+@keyframes cloudDrift { 0%{transform:translateX(0)} 100%{transform:translateX(18px)} }
+@keyframes sway { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(1.8deg)} }
+@keyframes flowerBob { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(4deg)} }
+@keyframes birdFly { 0%{transform:translateX(0) translateY(0)} 50%{transform:translateX(20px) translateY(-6px)} 100%{transform:translateX(0) translateY(0)} }
+@keyframes twinkle { 0%,100%{opacity:0.85; transform:scale(1)} 50%{opacity:0.35; transform:scale(0.7)} }
+@keyframes moonFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+@keyframes waveMove { 0%{transform:translateX(0)} 100%{transform:translateX(12px)} }
+
+@media (prefers-reduced-motion: reduce) {
+  .sunGroup,.cloudA,.cloudB,.sway,.swaySlow,.flowerA,.flowerB,.birdA,.birdB,.twinkle,.twinkleB,.moonFloat,.waveA { animation: none !important; }
+}
